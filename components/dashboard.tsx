@@ -11,6 +11,17 @@ import { useAuth } from "@/contexts/WalletContext"
 
 type TabType = "requests" | "pitches"
 
+function getRelativeTime(iso: string) {
+  const d = new Date(iso)
+  const now = new Date()
+  const diff = (now.getTime() - d.getTime()) / 1000
+  if (diff < 60) return "Just now"
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`
+  return d.toLocaleDateString()
+}
+
 const statusColors: Record<string, string> = {
   Open: "bg-chart-3/20 text-chart-3 border-chart-3/30",
   Hired: "bg-accent/20 text-accent border-accent/30",
@@ -159,7 +170,7 @@ export function Dashboard() {
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {request.createdAt}
+                          {getRelativeTime(request.createdAt)}
                         </span>
                       </div>
                     </div>
@@ -223,7 +234,7 @@ export function Dashboard() {
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {pitch.createdAt}
+                          {getRelativeTime(pitch.createdAt)}
                         </span>
                       </div>
                     </div>
