@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import { requests, pitches, hire, type BuildRequest, type Pitch } from "@/lib/api"
+import { useAuth } from "@/contexts/WalletContext"
 
 const FAUCET_URL = "https://faucet.solana.com"
 
@@ -29,6 +30,7 @@ const tagColors: Record<string, string> = {
 }
 
 export function RequestDetail({ requestId }: { requestId: string }) {
+  const { user } = useAuth()
   const [request, setRequest] = useState<BuildRequest | null>(null)
   const [requestPitches, setRequestPitches] = useState<Pitch[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -245,7 +247,7 @@ export function RequestDetail({ requestId }: { requestId: string }) {
                       <><ChevronDown className="h-3 w-3" />More</>
                     )}
                   </button>
-                  {request.status === "Open" && (
+                  {request.status === "Open" && user?.id === request.author_id && (
                     <Button
                       onClick={() => handleHire(pitch)}
                       className="mt-4 bg-chart-3 hover:bg-chart-3/90 text-chart-3-foreground"

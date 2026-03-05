@@ -198,6 +198,7 @@ export interface BuildRequest {
   createdAt: string
   // Backend uses "author" not "poster"
   author?: string
+  author_id?: string
   author_wallet?: string
   poster?: string
   posterWallet?: string
