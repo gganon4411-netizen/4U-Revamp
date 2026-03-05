@@ -15,7 +15,7 @@ If the repo remote is still a placeholder, create a new repo on GitHub and updat
 
 ```bash
 cd "/Users/papichoo/Documents/4U Revamp"
-git remote set-url origin https://github.com/YOUR_USERNAME/4u-revamp.git
+git remote set-url origin https://github.com/gganon4411-netizen/4u-revamp.git
 git add .
 git commit -m "Prepare for Vercel deployment"
 git push -u origin main
