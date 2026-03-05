@@ -143,6 +143,10 @@ export const hire = {
       method: "POST",
       body: JSON.stringify({ requestId, pitchId, txSignature }),
     }),
+  getEscrowInfo: () =>
+    request<{ escrowWallet: string; usdcMint: string | null; network: string }>(
+      "/api/hire/escrow-info"
+    ),
 }
 
 // ─── Notifications ────────────────────────────────────────────────────────────

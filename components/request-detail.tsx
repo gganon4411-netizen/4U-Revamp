@@ -15,8 +15,6 @@ import {
 import { cn } from "@/lib/utils"
 import { requests, pitches, hire, type BuildRequest, type Pitch } from "@/lib/api"
 
-const ESCROW_WALLET = "2aMA6ePTAUDUyn8tz68HG8TsKaCgtS4HzxfaZsLPFtJR"
-const USDC_MINT = "4zMMC9srt5RiX5X1ASAqkhaHL136nPAEERYPJq7JBnc8U"
 const FAUCET_URL = "https://faucet.solana.com"
 
 const tagColors: Record<string, string> = {
@@ -45,6 +43,12 @@ export function RequestDetail({ requestId }: { requestId: string }) {
   const [hireError, setHireError] = useState<string | null>(null)
   const [hireSuccess, setHireSuccess] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [escrowInfo, setEscrowInfo] = useState<{
+    escrowWallet: string
+    usdcMint: string | null
+    network: string
+  } | null>(null)
+  const [escrowInfoError, setEscrowInfoError] = useState<string | null>(null)
 
   useEffect(() => {
     setIsLoading(true)
@@ -80,11 +84,19 @@ export function RequestDetail({ requestId }: { requestId: string }) {
     setIsVerifying(false)
     setHireError(null)
     setHireSuccess(false)
+    setEscrowInfo(null)
+    setEscrowInfoError(null)
     setShowEscrowModal(true)
+    hire
+      .getEscrowInfo()
+      .then(setEscrowInfo)
+      .catch((err) => setEscrowInfoError(err.message))
   }
 
   const handleCopyEscrow = async () => {
-    await navigator.clipboard.writeText(ESCROW_WALLET)
+    const addr = escrowInfo?.escrowWallet
+    if (!addr) return
+    await navigator.clipboard.writeText(addr)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -280,19 +292,30 @@ export function RequestDetail({ requestId }: { requestId: string }) {
                   <label className="text-xs text-muted-foreground">Amount to send</label>
                   <div className="text-2xl font-bold text-accent">{selectedPitch?.price} USDC</div>
                 </div>
-                <div className="rounded-lg bg-secondary p-4">
-                  <label className="text-xs text-muted-foreground">Escrow wallet address</label>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-mono text-foreground truncate">{ESCROW_WALLET}</span>
-                    <Button variant="ghost" size="sm" className="shrink-0" onClick={handleCopyEscrow}>
-                      {copied ? <CheckCircle className="h-4 w-4 text-chart-3" /> : <Copy className="h-4 w-4" />}
-                    </Button>
+                {escrowInfoError ? (
+                  <p className="text-sm text-destructive">{escrowInfoError}</p>
+                ) : !escrowInfo ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading escrow info...
                   </div>
-                </div>
-                <div className="rounded-lg bg-secondary p-4">
-                  <label className="text-xs text-muted-foreground">USDC mint (devnet)</label>
-                  <div className="text-sm font-mono text-muted-foreground truncate">{USDC_MINT}</div>
-                </div>
+                ) : (
+                  <>
+                    <div className="rounded-lg bg-secondary p-4">
+                      <label className="text-xs text-muted-foreground">Escrow wallet address</label>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-mono text-foreground truncate">{escrowInfo.escrowWallet}</span>
+                        <Button variant="ghost" size="sm" className="shrink-0" onClick={handleCopyEscrow}>
+                          {copied ? <CheckCircle className="h-4 w-4 text-chart-3" /> : <Copy className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="rounded-lg bg-secondary p-4">
+                      <label className="text-xs text-muted-foreground">USDC mint ({escrowInfo.network})</label>
+                      <div className="text-sm font-mono text-muted-foreground truncate">{escrowInfo.usdcMint ?? "—"}</div>
+                    </div>
+                  </>
+                )}
                 <a
                   href={FAUCET_URL}
                   target="_blank"
@@ -309,6 +332,7 @@ export function RequestDetail({ requestId }: { requestId: string }) {
                   <Button
                     className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground"
                     onClick={() => setEscrowStep(2)}
+                    disabled={!escrowInfo}
                   >
                     {"I've Sent the USDC"} →
                   </Button>

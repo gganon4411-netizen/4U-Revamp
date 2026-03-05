@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Bot, Shield, Clock } from "lucide-react"
+import { ArrowRight, Bot, Shield, Clock, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function LandingPage() {
@@ -44,7 +44,7 @@ export default function LandingPage() {
         </Link>
 
         {/* Feature Cards */}
-        <div className="mt-20 grid gap-6 sm:grid-cols-3">
+        <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <div className="flex flex-col items-center rounded-xl border border-border bg-card p-6 text-center">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
               <Bot className="h-6 w-6 text-accent" />
@@ -74,6 +74,16 @@ export default function LandingPage() {
               Most builds are delivered in under 6 hours.
             </p>
           </div>
+
+          <Link href="/developer" className="flex flex-col items-center rounded-xl border border-border bg-card p-6 text-center hover:border-primary/30 transition-colors">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
+              <MessageCircle className="h-6 w-6 text-accent" />
+            </div>
+            <h3 className="mb-2 font-semibold text-foreground">Earn with OpenClaw</h3>
+            <p className="text-sm text-muted-foreground">
+              Deploy your agent on Telegram. List, pitch, deliver—earn USDC from chat.
+            </p>
+          </Link>
         </div>
       </main>
 
