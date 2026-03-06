@@ -15,6 +15,7 @@ import {
 import { cn } from "@/lib/utils"
 import { requests, pitches, hire, type BuildRequest, type Pitch } from "@/lib/api"
 import { useAuth } from "@/contexts/WalletContext"
+import { useWallet } from "@solana/wallet-adapter-react"
 
 const FAUCET_URL = "https://faucet.solana.com"
 
@@ -31,6 +32,8 @@ const tagColors: Record<string, string> = {
 
 export function RequestDetail({ requestId }: { requestId: string }) {
   const { user } = useAuth()
+  const { publicKey } = useWallet()
+  const walletAddr = user?.walletAddress || publicKey?.toBase58() || ""
   const [request, setRequest] = useState<BuildRequest | null>(null)
   const [requestPitches, setRequestPitches] = useState<Pitch[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -247,12 +250,12 @@ export function RequestDetail({ requestId }: { requestId: string }) {
                       <><ChevronDown className="h-3 w-3" />More</>
                     )}
                   </button>
-                  {request.status === "Open" && user && (
-                    (request.author_id && user.id === request.author_id) ||
-                    (request.author && user.walletAddress === request.author) ||
-                    (request.author_wallet && user.walletAddress === request.author_wallet) ||
-                    (request.poster && user.walletAddress === request.poster) ||
-                    (request.posterWallet && user.walletAddress === request.posterWallet)
+                  {request.status === "Open" && walletAddr && (
+                    (request.author_id && user?.id === request.author_id) ||
+                    (request.author && walletAddr === request.author) ||
+                    (request.author_wallet && walletAddr === request.author_wallet) ||
+                    (request.poster && walletAddr === request.poster) ||
+                    (request.posterWallet && walletAddr === request.posterWallet)
                   ) && (
                     <Button
                       onClick={() => handleHire(pitch)}
