@@ -55,7 +55,9 @@ function WalletSection({ collapsed = false }: { collapsed?: boolean }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet?.adapter.name])
 
-  const detectedWallets = wallets.length > 0 ? wallets : []
+  const detectedWallets = wallets.filter(
+    (w) => w.readyState === "Installed" || w.readyState === "Loadable"
+  )
 
   const initials = user?.username
     ? user.username.slice(0, 2).toUpperCase()
