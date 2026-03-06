@@ -18,7 +18,7 @@ import {
   Menu,
   Wallet,
 } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { useWallet } from "@solana/wallet-adapter-react"
@@ -41,19 +41,11 @@ function truncateWallet(address: string) {
 }
 
 function WalletSection({ collapsed = false }: { collapsed?: boolean }) {
-  const { wallets, select, connect, publicKey, connected, wallet } = useWallet()
+  const { wallets, select, publicKey, connected } = useWallet()
   const { user, isAuthenticated, isLoading, login, logout } = useAuth()
   const [pickerOpen, setPickerOpen] = useState(false)
   const [isConnecting, setIsConnecting] = useState(false)
-
-  // Auto-connect when a wallet is selected
-  useEffect(() => {
-    if (wallet && !connected && !isConnecting) {
-      setIsConnecting(true)
-      connect().catch(console.error).finally(() => setIsConnecting(false))
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet?.adapter.name])
+  const [connectError, setConnectError] = useState<string | null>(null)
 
   const detectedWallets = wallets.filter(
     (w) => w.readyState === "Installed" || w.readyState === "Loadable"
@@ -100,9 +92,23 @@ function WalletSection({ collapsed = false }: { collapsed?: boolean }) {
                     key={w.adapter.name}
                     variant="outline"
                     className="w-full justify-start gap-3 h-12 border-border hover:border-primary/50 hover:bg-primary/5"
-                    onClick={() => {
-                      select(w.adapter.name)
+                    disabled={isConnecting}
+                    onClick={async () => {
+                      setConnectError(null)
+                      setIsConnecting(true)
                       setPickerOpen(false)
+                      try {
+                        select(w.adapter.name)
+                        // Call connect directly on the adapter while still in the
+                        // click handler — wallet extensions require a user gesture
+                        await w.adapter.connect()
+                      } catch (e: unknown) {
+                        const msg = e instanceof Error ? e.message : "Connection failed"
+                        setConnectError(msg)
+                        console.error(e)
+                      } finally {
+                        setIsConnecting(false)
+                      }
                     }}
                   >
                     {w.adapter.icon && (
@@ -112,6 +118,9 @@ function WalletSection({ collapsed = false }: { collapsed?: boolean }) {
                     <span className="text-sm font-medium">{w.adapter.name}</span>
                   </Button>
                 ))
+              )}
+              {connectError && (
+                <p className="text-xs text-destructive text-center pt-1">{connectError}</p>
               )}
             </div>
           </SheetContent>
