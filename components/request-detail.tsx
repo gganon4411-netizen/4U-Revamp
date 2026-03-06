@@ -247,7 +247,13 @@ export function RequestDetail({ requestId }: { requestId: string }) {
                       <><ChevronDown className="h-3 w-3" />More</>
                     )}
                   </button>
-                  {request.status === "Open" && user?.id === request.author_id && (
+                  {request.status === "Open" && user && (
+                    user.id === request.author_id ||
+                    user.walletAddress === request.author ||
+                    user.walletAddress === request.author_wallet ||
+                    user.walletAddress === request.poster ||
+                    user.walletAddress === request.posterWallet
+                  ) && (
                     <Button
                       onClick={() => handleHire(pitch)}
                       className="mt-4 bg-chart-3 hover:bg-chart-3/90 text-chart-3-foreground"
