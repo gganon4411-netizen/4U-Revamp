@@ -18,7 +18,7 @@ import {
   Menu,
   Wallet,
 } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { useWallet } from "@solana/wallet-adapter-react"
@@ -42,10 +42,18 @@ function truncateWallet(address: string) {
 
 function WalletSection({ collapsed = false }: { collapsed?: boolean }) {
   const { wallets, select, publicKey, connected } = useWallet()
-  const { user, isAuthenticated, isLoading, login, logout } = useAuth()
+  const { user, isAuthenticated, isLoading, login, logout, error: authError } = useAuth()
   const [pickerOpen, setPickerOpen] = useState(false)
   const [isConnecting, setIsConnecting] = useState(false)
   const [connectError, setConnectError] = useState<string | null>(null)
+
+  // Auto sign-in as soon as the wallet connects — no manual "Sign In" step needed
+  useEffect(() => {
+    if (connected && !isAuthenticated && !isLoading) {
+      login()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connected, isAuthenticated])
 
   const detectedWallets = wallets.filter(
     (w) => w.readyState === "Installed" || w.readyState === "Loadable"
@@ -141,14 +149,28 @@ function WalletSection({ collapsed = false }: { collapsed?: boolean }) {
           )}
         </div>
         {!collapsed && (
-          <Button
-            onClick={login}
-            disabled={isLoading}
-            size="sm"
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-          >
-            {isLoading ? "Signing in..." : "Sign In"}
-          </Button>
+          authError ? (
+            // Sign-in failed — show error and a retry button
+            <div className="space-y-2">
+              <p className="text-xs text-destructive">{authError}</p>
+              <Button
+                onClick={login}
+                size="sm"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
+                Retry Sign In
+              </Button>
+            </div>
+          ) : (
+            // Auto sign-in in progress
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <svg className="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+              Signing in...
+            </div>
+          )
         )}
       </div>
     )
