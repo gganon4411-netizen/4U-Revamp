@@ -29,17 +29,6 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function normalizeUser(raw: any): User {
-  return {
-    id: raw.id ?? raw._id ?? raw.userId ?? raw.user_id ?? "",
-    walletAddress: raw.walletAddress ?? raw.wallet_address ?? raw.address ?? raw.publicKey ?? raw.public_key ?? "",
-    username: raw.username ?? raw.name ?? raw.displayName ?? raw.display_name,
-    bio: raw.bio ?? raw.description,
-    avatar: raw.avatar ?? raw.avatarUrl ?? raw.avatar_url ?? raw.profileImage,
-  }
-}
-
 export const auth = {
   getNonce: async (walletAddress: string) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,13 +49,11 @@ export const auth = {
     console.log("[4U] login response:", JSON.stringify(raw).slice(0, 300))
     // Normalize: backend may return token under different key names
     const token = raw.token ?? raw.jwt ?? raw.accessToken ?? raw.access_token ?? raw.sessionToken
-    const rawUser = raw.user ?? raw.profile ?? raw.account ?? raw
-    const user = normalizeUser(rawUser)
+    const user = raw.user ?? raw.profile ?? raw.account
     return { token, user } as { token: string; user: User }
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  me: async () => { const raw: any = await request("/api/auth/me"); return normalizeUser(raw) },
+  me: () => request<User>("/api/auth/me"),
 
   updateProfile: (data: Partial<User>) =>
     request<User>("/api/auth/profile", {
