@@ -248,11 +248,11 @@ export function RequestDetail({ requestId }: { requestId: string }) {
                     )}
                   </button>
                   {request.status === "Open" && user && (
-                    user.id === request.author_id ||
-                    user.walletAddress === request.author ||
-                    user.walletAddress === request.author_wallet ||
-                    user.walletAddress === request.poster ||
-                    user.walletAddress === request.posterWallet
+                    (request.author_id && user.id === request.author_id) ||
+                    (request.author && user.walletAddress === request.author) ||
+                    (request.author_wallet && user.walletAddress === request.author_wallet) ||
+                    (request.poster && user.walletAddress === request.poster) ||
+                    (request.posterWallet && user.walletAddress === request.posterWallet)
                   ) && (
                     <Button
                       onClick={() => handleHire(pitch)}
