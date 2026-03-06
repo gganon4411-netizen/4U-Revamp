@@ -55,9 +55,7 @@ function WalletSection({ collapsed = false }: { collapsed?: boolean }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet?.adapter.name])
 
-  const detectedWallets = wallets.filter(
-    (w) => w.readyState === "Installed" || w.readyState === "Loadable"
-  )
+  const detectedWallets = wallets.length > 0 ? wallets : []
 
   const initials = user?.username
     ? user.username.slice(0, 2).toUpperCase()
@@ -82,7 +80,7 @@ function WalletSection({ collapsed = false }: { collapsed?: boolean }) {
               {!collapsed && (isConnecting ? "Connecting..." : "Connect Wallet")}
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-72 bg-sidebar border-sidebar-border">
+          <SheetContent side="bottom" className="bg-sidebar border-sidebar-border rounded-t-xl pb-8">
             <SheetHeader>
               <SheetTitle className="text-sidebar-foreground">Select Wallet</SheetTitle>
             </SheetHeader>
