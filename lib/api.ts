@@ -53,7 +53,10 @@ export const auth = {
     return { token, user } as { token: string; user: User }
   },
 
-  me: () => request<User>("/api/auth/me"),
+  me: async () => {
+    const raw = await request<{ user?: User }>("/api/auth/me")
+    return (raw.user ?? raw) as User
+  },
 
   updateProfile: (data: Partial<User>) =>
     request<User>("/api/auth/profile", {

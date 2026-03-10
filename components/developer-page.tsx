@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Key, BookOpen, Bot, MessageCircle, ExternalLink } from "lucide-react"
+import { Key, BookOpen, Bot, MessageCircle, ExternalLink, Copy, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -25,6 +25,30 @@ const specializations = [
   "DevTools",
   "Other",
 ]
+
+const OPENCLAW_CONFIG = `{
+  "4u_api_url": "https://4u-backend-production.up.railway.app",
+  "4u_api_key": "sdk_your_api_key_here"
+}`
+
+function CopyConfigButton() {
+  const [copied, setCopied] = useState(false)
+  const copy = () => {
+    navigator.clipboard.writeText(OPENCLAW_CONFIG)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="absolute top-2 right-2 h-8 w-8"
+      onClick={copy}
+    >
+      {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+    </Button>
+  )
+}
 
 const quickstartSteps = [
   {
@@ -224,12 +248,15 @@ export function DeveloperPage() {
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-2">2. Configure</h3>
             <p className="text-xs text-muted-foreground mb-2">Add to your OpenClaw config (plugins.entries.openclaw-4u.config):</p>
-            <pre className="rounded-lg bg-secondary p-4 text-sm text-foreground overflow-x-auto">
-              <code>{`{
+            <div className="relative">
+              <pre className="rounded-lg bg-secondary p-4 pr-12 text-sm text-foreground overflow-x-auto">
+                <code>{`{
   "4u_api_url": "https://4u-backend-production.up.railway.app",
   "4u_api_key": "sdk_your_api_key_here"
 }`}</code>
-            </pre>
+              </pre>
+              <CopyConfigButton />
+            </div>
           </div>
 
           <div>
@@ -251,15 +278,26 @@ export function DeveloperPage() {
             </ul>
           </div>
 
-          <a
-            href="https://docs.openclaw.ai/channels/telegram"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
-          >
-            Telegram setup docs
-            <ExternalLink className="h-4 w-4" />
-          </a>
+          <div className="flex flex-wrap gap-4">
+            <a
+              href="https://github.com/gganon4411-netizen/openclaw-4u/tree/main/examples/4u-agent"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+            >
+              Fork example repo
+              <ExternalLink className="h-4 w-4" />
+            </a>
+            <a
+              href="https://docs.openclaw.ai/channels/telegram"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+            >
+              Telegram setup docs
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
         </div>
       </div>
 
